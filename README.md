@@ -21,7 +21,7 @@ With the data set from "Human Activity Recognition Using Smartphones" this R Scr
 ## R script steps
 
 The first step is to load data files for features and activities.  The features file shows a complete list of variables.  From this list we will extract only those variables related to mean and standard deviation.  The grep() function is a string function that helps serve this purpose.
-
+```{r}
 ### load features and activity desc files
 features <- read.table("./UCI HAR Dataset/features.txt"
                        ,header = FALSE
@@ -38,10 +38,10 @@ mean.v <- grep("mean()"
 std.v<- grep("std()"
              ,features$var_name
              ,fixed = TRUE)
-             
+```        
              
 Next step is to load the files related to the training set.
-
+```{r}
 ### load subject file for train set
 subject_train <- read.table("./UCI HAR Dataset/train/subject_train.txt"
                        ,header = FALSE
@@ -62,19 +62,19 @@ x_train.df <- read.table("./UCI HAR Dataset/train/X_train.txt"
                          ,header = FALSE
                          ,col.names = features$var_name)
                          #,nrows = 100)
-                         
+```                  
 
 Now the script creates a subset of data with only mean and std variables and combines the subject id, activity name and training data into one data frame called x_train.df.  The cbind() function provides a convenient way to combine multiple vectors into a data frame.
-
+```{r}
 ### subset data frame to show columns only with mean() and std() variables
 x_train.df <- x_train.df[,c(mean.v, std.v)]
 
 ### prepare train set with subject and activity names
 x_train.df <- cbind(subject_train, y_train.df["activity_name"], x_train.df)
-
+```
 
 Now the script repeats the same steps for the test data.
-
+```{r}
 ### load subject file for test set
 subject_test <- read.table("./UCI HAR Dataset/test/subject_test.txt"
                             ,header = FALSE
@@ -100,26 +100,28 @@ x_test.df <- x_test.df[,c(mean.v, std.v)]
 
 ### prepare test set with subject and activity names
 x_test.df <- cbind(subject_test, y_test.df["activity_name"], x_test.df)
-
+```
 
 Before combining train and test data frames together, the script checks the number of rows and columns in each data frame.
-
+```{r}
 ### check rows and columns for train and test sets
 ncol(x_train.df); nrow(x_train.df)
 
 ncol(x_test.df); nrow(x_test.df)
-
+```
 
 Now it binds rows from train and test data frames together into a data table called samsung.  It also checks for nrows to make sure that total row count matches with the individual data frames.  The data.table library provides functions that are useful for this assignment.
 
+```{r}
 ### combine train and test data sets into data table
 samsung <- data.table(rbind(x_train.df, x_test.df))
 
 nrow(samsung)
-
+```
 
 Next the script fixes some of the column names in the data table.  The goal is to add column labels that are more meaningful.  For instance by removing "..." or eliminating duplicate text "BodyBody".
 
+```{r}
 ### create vector with column names
 col <- colnames(samsung)
 
@@ -181,23 +183,27 @@ for (i in seq_along (col)) {
 }
 
 ### assign new column names to data table
-setnames(samsung, colnames(samsung), col)
 
+setnames(samsung, colnames(samsung), col)
+```
 
 Then the file calculates the mean and standard deviation for each variable across subject id and activity name.  It makes sure to remove NA values.  For this purpose the script uses the data table special variable .SD to summarize data by subject id and activity name.
 
+```{r}
 ### calculate mean for each variable
 samsung_mean <- samsung[,lapply (.SD, mean, na.rm = TRUE), by = list(subject_id, activity_name)]
 
 ### order rows in table
 samsung_mean <- samsung_mean[order(subject_id, activity_name)]
-
+```
 
 The final step is to export the tidy data set into a text file.  In this case, a tab delimited file is created.
 
+```{r}
 ### create tidy data file "samsung_mean.txt"
 write.table(samsung_mean, file = "./samsung_mean.txt"
             ,sep="\t"
             ,col.names = TRUE
             ,row.names = FALSE
             )
+```
