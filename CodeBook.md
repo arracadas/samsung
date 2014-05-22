@@ -215,4 +215,5 @@ Equivalent to time domain signal in the frequency domain.  See definition of tim
 68. "freq.BodyGyroJerkMag.std" 
 Equivalent to time domain signal in the frequency domain.  See definition of time domain signal.
 
-
+## Data Transformations
+See README file for description of each step to transform and clean up data.
